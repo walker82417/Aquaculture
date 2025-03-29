@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +12,7 @@
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
             font-family: Arial, sans-serif;
             overflow-x: hidden;
@@ -27,6 +29,7 @@
             z-index: -1;
             overflow: hidden;
         }
+
         #ocean-video {
             width: 100%;
             height: 100vh;
@@ -44,14 +47,17 @@
             border-radius: 12px;
             z-index: 10;
         }
+
         .navbar ul {
             list-style-type: none;
             display: flex;
             gap: 20px;
         }
+
         .navbar li {
             display: inline;
         }
+
         .navbar a {
             color: white;
             text-decoration: none;
@@ -60,32 +66,47 @@
             border-radius: 8px;
             transition: background 0.3s;
         }
+
         .navbar a:hover {
             background-color: #00b4d8;
+        }
+
+        /* Project Title */
+        .project-title {
+            text-align: center;
+            font-size: 3rem;
+            /* Increased size */
+            color: white;
+            position: absolute;
+            top: 40%;
+            /* Moved slightly up */
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.9);
+            z-index: 5;
         }
 
         /* Main Container - Centered Content */
         .main-container {
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
-            padding-top: 50px;
+            align-items: flex-end;
+            height: 90vh;
+            padding-bottom: 30px;
         }
 
-        /* Grid Layout for Gauges */
+        /* Flex Layout for Gauges */
         .container {
-            display: grid;
-            grid-template-columns: repeat(2, 300px);
-            gap: 50px;
+            display: flex;
+            gap: 40px;
             justify-content: center;
             align-items: center;
         }
 
         /* Gauge Container */
         .gauge-container {
-            width: 300px;
-            height: 300px;
+            width: 242px;
+            height: 242px;
             position: relative;
         }
 
@@ -95,15 +116,15 @@
             height: 100%;
         }
 
-        /* Parameter Info (Transparent with Soft Glow) */
+        /* Parameter Info (Darker Background for Visibility) */
         .parameter-info {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             text-align: center;
-            color: rgba(255, 255, 255, 0.9); /* White with slight transparency */
-            text-shadow: 0 0 15px rgba(255, 255, 255, 0.8); /* Soft glow */
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
         }
 
         /* Parameter Name */
@@ -112,16 +133,17 @@
             margin-bottom: 5px;
         }
 
-        /* Parameter Reading (Fully Transparent Background) */
+        /* Parameter Reading (Darker Background) */
         .parameter-value {
             font-size: 1.2rem;
             font-weight: bold;
-            background: transparent; /* Fully transparent */
+            background: rgba(0, 0, 0, 0.7);
             padding: 5px 10px;
             border-radius: 8px;
         }
     </style>
 </head>
+
 <body>
     <!-- Background Video -->
     <div class="video-container">
@@ -141,21 +163,24 @@
         </ul>
     </nav>
 
-    <!-- Main Container for Centered Gauges -->
+    <!-- Project Title -->
+    <h1 class="project-title">Real Time Data Analysis</h1>
+
+    <!-- Main Container for Gauges -->
     <div class="main-container">
         <div class="container">
             <!-- pH Level -->
             <div class="gauge-container">
-                <canvas id="phGauge"></canvas>
+                <canvas id="phGauge" width="242" height="242"></canvas>
                 <div class="parameter-info">
                     <div class="parameter-name">pH Level</div>
                     <div id="phValue" class="parameter-value">--</div>
                 </div>
             </div>
-            
+
             <!-- Temperature -->
             <div class="gauge-container">
-                <canvas id="tempGauge"></canvas>
+                <canvas id="tempGauge" width="242" height="242"></canvas>
                 <div class="parameter-info">
                     <div class="parameter-name">Temperature</div>
                     <div id="tempValue" class="parameter-value">--</div>
@@ -164,7 +189,7 @@
 
             <!-- Turbidity -->
             <div class="gauge-container">
-                <canvas id="turbidityGauge"></canvas>
+                <canvas id="turbidityGauge" width="242" height="242"></canvas>
                 <div class="parameter-info">
                     <div class="parameter-name">Turbidity</div>
                     <div id="turbidityValue" class="parameter-value">--</div>
@@ -173,7 +198,7 @@
 
             <!-- Water Flow Rate -->
             <div class="gauge-container">
-                <canvas id="flowGauge"></canvas>
+                <canvas id="flowGauge" width="242" height="242"></canvas>
                 <div class="parameter-info">
                     <div class="parameter-name">Water Flow</div>
                     <div id="flowValue" class="parameter-value">--</div>
@@ -194,7 +219,7 @@
             function drawGauge(value) {
                 const centerX = canvas.width / 2;
                 const centerY = canvas.height / 2;
-                const radius = 120;
+                const radius = 99; // Adjusted radius to fit increased size
                 const startAngle = 0.75 * Math.PI;
                 const endAngle = ((value - minValue) / (maxValue - minValue)) * 1.5 * Math.PI + startAngle;
 
@@ -204,7 +229,7 @@
                 // Draw background ring
                 ctx.beginPath();
                 ctx.arc(centerX, centerY, radius, 0.75 * Math.PI, 2.25 * Math.PI);
-                ctx.lineWidth = 15;
+                ctx.lineWidth = 16;
                 ctx.strokeStyle = '#ccc';
                 ctx.stroke();
 
@@ -212,7 +237,7 @@
                 ctx.beginPath();
                 ctx.arc(centerX, centerY, radius, 0.75 * Math.PI, endAngle, false);
                 ctx.strokeStyle = color;
-                ctx.lineWidth = 15;
+                ctx.lineWidth = 16;
                 ctx.stroke();
 
                 // Update the value dynamically
@@ -224,7 +249,7 @@
                 if (Math.abs(currentValue - targetValue) < 0.1) {
                     targetValue = Math.random() * (maxValue - minValue) + minValue;
                 }
-                currentValue += (targetValue - currentValue) * 0.05; // Smooth interpolation
+                currentValue += (targetValue - currentValue) * 0.05;
                 drawGauge(currentValue);
                 requestAnimationFrame(animateGauge);
             }
@@ -240,4 +265,5 @@
         createGauge('flowGauge', 'flowValue', 8, 10, 'L/min', '#3498db');
     </script>
 </body>
+
 </html>
