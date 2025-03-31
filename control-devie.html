@@ -204,6 +204,15 @@
                     <div id="flowValue" class="parameter-value">--</div>
                 </div>
             </div>
+
+            <!-- Water Level -->
+            <div class="gauge-container">
+                <canvas id="waterLevelGauge" width="242" height="242"></canvas>
+                <div class="parameter-info">
+                    <div class="parameter-name">Water Level</div>
+                    <div id="waterLevelValue" class="parameter-value">--</div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -259,10 +268,11 @@
         }
 
         // Create individual gauges with smooth animation
-        createGauge('phGauge', 'phValue', 7, 7.2, 'pH', '#00ff00');
-        createGauge('tempGauge', 'tempValue', 29, 32, '°C', '#ff5733');
+        createGauge('phGauge', 'phValue', 6, 7.5, 'pH', '#00ff00');
+        createGauge('tempGauge', 'tempValue', 25, 35, '°C', '#ff5733');
         createGauge('turbidityGauge', 'turbidityValue', 50, 100, 'NTU', '#f4d03f');
         createGauge('flowGauge', 'flowValue', 8, 10, 'L/min', '#3498db');
+        createGauge('waterLevelGauge', 'waterLevelValue', 50, 100, '%', '#1e90ff');
     </script>
 </body>
 

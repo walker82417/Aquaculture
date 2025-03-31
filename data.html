@@ -160,7 +160,7 @@
     <nav class="navbar">
         <ul>
             <li><a href="index.html">Home</a></li>
-            <li><a href="control-devie.html">Control Device</a></li>
+            <li><a href="control-device.html">Control Device</a></li>
             <li><a href="data.html">Data</a></li>
             <li><a href="team.html">Team</a></li>
         </ul>
@@ -185,6 +185,7 @@
                         <th>Temperature</th>
                         <th>Turbidity</th>
                         <th>Water Flow Rate</th>
+                        <th>Water Level (%)</th>
                     </tr>
                 </thead>
                 <tbody id="table-body">
@@ -199,21 +200,42 @@
         <p>WALKER82417</p>
     </footer>
 
+    <!-- JavaScript to Handle Data Storage -->
     <script>
-        // Sample Data Array
-        const data = [
-            { time: '2025-03-28 10:00', ph: 7.1, temp: 28.5, turbidity: 3.2, flow: 3.4 },
-            { time: '2025-03-28 10:05', ph: 7.3, temp: 27.9, turbidity: 3.5, flow: 3.6 },
-            { time: '2025-03-28 10:10', ph: 6.9, temp: 28.1, turbidity: 3.1, flow: 3.8 },
-            { time: '2025-03-28 10:15', ph: 7.0, temp: 28.0, turbidity: 3.0, flow: 3.5 },
-            { time: '2025-03-28 10:20', ph: 7.2, temp: 28.2, turbidity: 3.3, flow: 3.7 }
-        ];
+        let data = [];
 
-        // Function to Populate Data
+        // Load Data from localStorage
+        function loadStoredData() {
+            const storedData = JSON.parse(localStorage.getItem('parameterData'));
+            if (storedData && storedData.data) {
+                data = storedData.data;
+                console.log('Data loaded from localStorage.');
+            } else {
+                console.log('No valid data found. Using sample data.');
+                populateSampleData();
+            }
+            populateTable();
+        }
+
+        // Store Data in localStorage
+        function storeData() {
+            localStorage.setItem('parameterData', JSON.stringify({ data }));
+        }
+
+        // Populate Sample Data
+        function populateSampleData() {
+            data = [
+                { time: new Date().toLocaleString(), ph: 7.2, temp: 28.1, turbidity: 3.5, flow: 3.2, waterLevel: 75 },
+                { time: new Date().toLocaleString(), ph: 6.9, temp: 27.5, turbidity: 3.2, flow: 3.1, waterLevel: 68 }
+            ];
+            storeData();
+        }
+
+        // Populate Data in Table
         function populateTable() {
             const tableBody = document.getElementById('table-body');
             tableBody.innerHTML = '';
-
+            
             data.forEach(entry => {
                 const row = `
                     <tr>
@@ -222,13 +244,14 @@
                         <td>${entry.temp.toFixed(1)}°C</td>
                         <td>${entry.turbidity.toFixed(1)} NTU</td>
                         <td>${entry.flow.toFixed(1)} L/min</td>
+                        <td>${entry.waterLevel.toFixed(1)}%</td>
                     </tr>
                 `;
                 tableBody.innerHTML += row;
             });
         }
 
-        // Filter Table Data
+        // Filter Table Data Based on User Input
         function filterData() {
             const searchValue = document.getElementById('search').value.toLowerCase();
             const filteredData = data.filter(entry =>
@@ -237,7 +260,7 @@
 
             const tableBody = document.getElementById('table-body');
             tableBody.innerHTML = '';
-
+            
             filteredData.forEach(entry => {
                 const row = `
                     <tr>
@@ -246,30 +269,33 @@
                         <td>${entry.temp.toFixed(1)}°C</td>
                         <td>${entry.turbidity.toFixed(1)} NTU</td>
                         <td>${entry.flow.toFixed(1)} L/min</td>
+                        <td>${entry.waterLevel.toFixed(1)}%</td>
                     </tr>
                 `;
                 tableBody.innerHTML += row;
             });
         }
 
-        // Initial Table Population
-        populateTable();
-
-        // Auto-Update Table Data Every 5 Seconds (Simulated)
+        // Auto-Update Table Data Every 5 Seconds
         setInterval(() => {
             const randomEntry = {
                 time: new Date().toLocaleString(),
-                ph: (6.8 + Math.random() * 0.5).toFixed(2),
-                temp: (27 + Math.random() * 3).toFixed(1),
-                turbidity: (3 + Math.random()).toFixed(1),
-                flow: (3 + Math.random()).toFixed(1)
+                ph: (6.8 + Math.random() * 0.5),
+                temp: (27 + Math.random() * 3),
+                turbidity: (3 + Math.random()),
+                flow: (3 + Math.random()),
+                waterLevel: (50 + Math.random() * 50)
             };
             data.unshift(randomEntry);
             if (data.length > 10) {
-                data.pop(); // Limit data rows to 10 for simplicity
+                data.pop();
             }
             populateTable();
+            storeData();
         }, 5000);
+
+        // Load stored data and populate table initially
+        loadStoredData();
     </script>
 </body>
 
