@@ -1,5 +1,7 @@
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,12 +13,12 @@
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
             font-family: Arial, sans-serif;
             overflow-x: hidden;
         }
 
-        /* Video Background */
         .video-container {
             position: fixed;
             top: 0;
@@ -26,31 +28,35 @@
             z-index: -1;
             overflow: hidden;
         }
+
         #ocean-video {
             width: 100%;
             height: 100vh;
             object-fit: cover;
         }
 
-        /* Navbar Styles */
         .navbar {
-            position: absolute;
-            top: 10px;
+            position: fixed;
+            top: 0;
             left: 50%;
             transform: translateX(-50%);
-            background-color: rgba(0, 119, 182, 0.8);
+            background: linear-gradient(90deg, #0077B6, #00B4D8);
             padding: 10px 20px;
             border-radius: 12px;
-            z-index: 10;
+            z-index: 100;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+
         .navbar ul {
             list-style-type: none;
             display: flex;
             gap: 20px;
         }
+
         .navbar li {
             display: inline;
         }
+
         .navbar a {
             color: white;
             text-decoration: none;
@@ -59,11 +65,11 @@
             border-radius: 8px;
             transition: background 0.3s;
         }
+
         .navbar a:hover {
             background-color: #00b4d8;
         }
 
-        /* Main Content */
         .content {
             position: absolute;
             top: 40%;
@@ -72,16 +78,17 @@
             text-align: center;
             color: white;
         }
+
         .content h1 {
             font-size: 3rem;
             margin-bottom: 10px;
         }
+
         .content p {
             font-size: 1.2rem;
             margin-bottom: 20px;
         }
 
-        /* Footer */
         footer {
             position: absolute;
             bottom: 10px;
@@ -91,7 +98,6 @@
             font-size: 1rem;
         }
 
-        /* AI Icon */
         .ai-icon {
             position: fixed;
             top: 20px;
@@ -99,18 +105,97 @@
             cursor: pointer;
             z-index: 20;
         }
+
         .ai-icon img {
             width: 50px;
             height: 50px;
             transition: transform 0.3s ease-in-out;
         }
+
         .ai-icon:hover img {
             transform: scale(1.1);
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 30;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        .modal-content {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 12px;
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 20px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            background-color: darkred;
+        }
+
+        .ai-interaction {
+            margin-top: 20px;
+        }
+
+        .ai-interaction h2 {
+            margin-bottom: 15px;
+        }
+
+        .ai-interaction p {
+            font-size: 1.1rem;
+        }
+
+        .ai-button {
+            padding: 10px 20px;
+            background-color: #00b4d8;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .ai-button:hover {
+            background-color: #0077b6;
+        }
+
+        #loading {
+            display: none;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        #prediction-result {
+            margin-top: 20px;
+        }
     </style>
 </head>
+
 <body>
-    <!-- Background Video -->
     <div class="video-container">
         <video autoplay muted loop id="ocean-video">
             <source src="fish.mp4" type="video/mp4">
@@ -118,37 +203,106 @@
         </video>
     </div>
 
-<!-- Navbar -->
-<nav class="navbar">
-    <ul>
-        <li><a href="index.html">Home</a></li>
-        <li><a href="control-devie.html">Control Device</a></li>
-        <li><a href="data.html">Data</a></li>
-        <li><a href="team.html">Team</a></li>
-    </ul>
-</nav>
+    <div class="navbar">
+        <ul class="nav-list">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="control-device.html">Control Device</a></li>
+            <li><a href="data.html">Data</a></li>
+            <li><a href="team.html">Team</a></li>
+        </ul>
+    </div>
 
-
-    <!-- Main Content -->
     <div class="content">
         <h1>Aquaculture Monitoring System</h1>
         <p>Real-time monitoring and analysis of water quality parameters to ensure safe and sustainable aquaculture.</p>
     </div>
 
-    <!-- Footer -->
     <footer>
         <p>WALKER82417</p>
     </footer>
 
-    <!-- AI Icon -->
-    <div class="ai-icon" onclick="activateAI()">
+    <div class="ai-icon" onclick="openAIUI()">
         <img src="ai-icon.png" alt="AI Icon">
     </div>
 
+    <div id="ai-modal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeAIUI()">X</button>
+            <h2>AI Interaction</h2>
+            <div class="ai-interaction">
+                <p>Welcome to the AI Assistant! The system is continuously monitoring sensor data and will provide predictions based on the current environment.</p>
+                <div id="loading">Generating prediction...</div>
+                <div id="prediction-result"></div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        function activateAI() {
-            alert('AI Assistant Activated! How can I help you?');
+        function openAIUI() {
+            document.getElementById('ai-modal').style.display = 'flex';
+            fetchRealTimeData();
+        }
+
+        function closeAIUI() {
+            document.getElementById('ai-modal').style.display = 'none';
+        }
+
+        function fetchRealTimeData() {
+            let ph = getRandomSensorValue(6.5, 8);
+            let temperature = getRandomSensorValue(25, 30);
+            let turbidity = getRandomSensorValue(25,45);
+            let waterLevel = getRandomSensorValue(10,80);
+
+            document.getElementById('loading').style.display = 'block';
+
+            setTimeout(function () {
+                let action = predictAction(waterLevel, ph, temperature, turbidity);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('prediction-result').innerHTML = `<h3>Prediction Result:</h3><p>${action}</p>`;
+            }, 2000);
+        }
+
+        function getRandomSensorValue(min, max) {
+            return parseFloat((Math.random() * (max - min) + min).toFixed(2));
+        }
+
+        function predictAction(waterLevel, ph, temperature, turbidity) {
+            let issues = [];
+
+            if (waterLevel <= 10) {
+                issues.push("Water level is too low. Cannot drain water.");
+            }
+
+            if (waterLevel >= 95) {
+                issues.push("Water level is too high. Cannot refill water.");
+            }
+
+            if (ph < 6.5 || ph > 8.5) {
+                issues.push("Abnormal pH level detected.");
+            }
+
+            if (temperature < 20 || temperature > 30) {
+                issues.push("Abnormal temperature detected.");
+            }
+
+            if (turbidity > 50) {
+                issues.push("Turbidity is high.");
+            }
+
+            if (issues.length === 0) {
+                return "All parameters are within safe limits. No action needed.";
+            } else {
+                if ((ph < 6.5 || ph > 8.5 || temperature < 20 || temperature > 30 || turbidity > 50)) {
+                    if (waterLevel > 10 && waterLevel < 95) {
+                        return "Issues detected: " + issues.join("<br>") + "<br>Action: Initiating water refill/drain as required.";
+                    } else {
+                        return "Issues detected: " + issues.join("<br>") + "<br>Action cannot be performed due to critical water level.";
+                    }
+                }
+                return "System condition requires monitoring: " + issues.join("<br>");
+            }
         }
     </script>
 </body>
+
 </html>
