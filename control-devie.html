@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Control Device - Aquaculture Monitoring System</title>
     <style>
-        /* General Styles */
         * {
             margin: 0;
             padding: 0;
@@ -19,7 +18,6 @@
             background-color: #001f3f;
         }
 
-        /* Video Background */
         .video-container {
             position: fixed;
             top: 0;
@@ -36,7 +34,6 @@
             object-fit: cover;
         }
 
-        /* Navbar Styles */
         .navbar {
             position: fixed;
             top: 10px;
@@ -54,10 +51,6 @@
             gap: 20px;
         }
 
-        .navbar li {
-            display: inline;
-        }
-
         .navbar a {
             color: white;
             text-decoration: none;
@@ -71,22 +64,18 @@
             background-color: #00b4d8;
         }
 
-        /* Project Title */
         .project-title {
             text-align: center;
             font-size: 3rem;
-            /* Increased size */
             color: white;
             position: absolute;
             top: 40%;
-            /* Moved slightly up */
             left: 50%;
             transform: translate(-50%, -50%);
             text-shadow: 0 0 15px rgba(255, 255, 255, 0.9);
             z-index: 5;
         }
 
-        /* Main Container - Centered Content */
         .main-container {
             display: flex;
             justify-content: center;
@@ -95,28 +84,25 @@
             padding-bottom: 30px;
         }
 
-        /* Flex Layout for Gauges */
         .container {
             display: flex;
             gap: 40px;
+            flex-wrap: wrap;
             justify-content: center;
             align-items: center;
         }
 
-        /* Gauge Container */
         .gauge-container {
             width: 242px;
             height: 242px;
             position: relative;
         }
 
-        /* Canvas for Gauge */
         canvas {
             width: 100%;
             height: 100%;
         }
 
-        /* Parameter Info (Darker Background for Visibility) */
         .parameter-info {
             position: absolute;
             top: 50%;
@@ -127,13 +113,11 @@
             text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
         }
 
-        /* Parameter Name */
         .parameter-name {
             font-size: 1.4rem;
             margin-bottom: 5px;
         }
 
-        /* Parameter Reading (Darker Background) */
         .parameter-value {
             font-size: 1.2rem;
             font-weight: bold;
@@ -145,7 +129,6 @@
 </head>
 
 <body>
-    <!-- Background Video -->
     <div class="video-container">
         <video autoplay muted loop id="ocean-video">
             <source src="fish.mp4" type="video/mp4">
@@ -153,23 +136,19 @@
         </video>
     </div>
 
-    <!-- Navbar -->
     <nav class="navbar">
         <ul>
             <li><a href="index.html">Home</a></li>
-            <li><a href="control-devie.html">Control Device</a></li>
+            <li><a href="control-device.html">Control Device</a></li>
             <li><a href="data.html">Data</a></li>
             <li><a href="team.html">Team</a></li>
         </ul>
     </nav>
 
-    <!-- Project Title -->
     <h1 class="project-title">Real Time Data Analysis</h1>
 
-    <!-- Main Container for Gauges -->
     <div class="main-container">
         <div class="container">
-            <!-- pH Level -->
             <div class="gauge-container">
                 <canvas id="phGauge" width="242" height="242"></canvas>
                 <div class="parameter-info">
@@ -178,7 +157,6 @@
                 </div>
             </div>
 
-            <!-- Temperature -->
             <div class="gauge-container">
                 <canvas id="tempGauge" width="242" height="242"></canvas>
                 <div class="parameter-info">
@@ -187,7 +165,6 @@
                 </div>
             </div>
 
-            <!-- Turbidity -->
             <div class="gauge-container">
                 <canvas id="turbidityGauge" width="242" height="242"></canvas>
                 <div class="parameter-info">
@@ -196,7 +173,6 @@
                 </div>
             </div>
 
-            <!-- Water Flow Rate -->
             <div class="gauge-container">
                 <canvas id="flowGauge" width="242" height="242"></canvas>
                 <div class="parameter-info">
@@ -205,7 +181,6 @@
                 </div>
             </div>
 
-            <!-- Water Level -->
             <div class="gauge-container">
                 <canvas id="waterLevelGauge" width="242" height="242"></canvas>
                 <div class="parameter-info">
@@ -215,65 +190,95 @@
             </div>
         </div>
     </div>
+    <!-- paste this after your existing code in the <script> tag -->
+<script>
+    const channelID = "2925198";
+    const apiKey = "FQQN6FJELDX5YVRM";
 
-    <script>
-        // Function to create smooth ring gauge
-        function createGauge(canvasId, valueId, minValue, maxValue, unit, color) {
-            const canvas = document.getElementById(canvasId);
-            const ctx = canvas.getContext('2d');
-            const valueDisplay = document.getElementById(valueId);
-            let currentValue = minValue;
-            let targetValue = Math.random() * (maxValue - minValue) + minValue;
+    const fields = {
+        ph: { field: 1, min: 6, max: 8, unit: 'pH', color: '#00ff00', canvas: 'phGauge', display: 'phValue' },
+        temperature: { field: 2, min: 20, max: 40, unit: '°C', color: '#ff5733', canvas: 'tempGauge', display: 'tempValue' },
+        turbidity: { field: 3, min: 0, max: 100, unit: 'NTU', color: '#f4d03f', canvas: 'turbidityGauge', display: 'turbidityValue' },
+        flow: { field: 4, min: 0, max: 15, unit: 'L/min', color: '#3498db', canvas: 'flowGauge', display: 'flowValue' },
+        level: { field: 5, min: 0, max: 100, unit: '%', color: '#1e90ff', canvas: 'waterLevelGauge', display: 'waterLevelValue' },
+    };
 
-            function drawGauge(value) {
-                const centerX = canvas.width / 2;
-                const centerY = canvas.height / 2;
-                const radius = 99; // Adjusted radius to fit increased size
-                const startAngle = 0.75 * Math.PI;
-                const endAngle = ((value - minValue) / (maxValue - minValue)) * 1.5 * Math.PI + startAngle;
+    function createLiveGauge(param) {
+        const canvas = document.getElementById(param.canvas);
+        const ctx = canvas.getContext('2d');
+        const valueDisplay = document.getElementById(param.display);
+        let currentValue = param.min;
 
-                // Clear canvas
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+        function drawGauge(value) {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = 99;
+            const startAngle = 0.75 * Math.PI;
+            const endAngle = ((value - param.min) / (param.max - param.min)) * 1.5 * Math.PI + startAngle;
 
-                // Draw background ring
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, radius, 0.75 * Math.PI, 2.25 * Math.PI);
-                ctx.lineWidth = 16;
-                ctx.strokeStyle = '#ccc';
-                ctx.stroke();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                // Draw animated gauge ring
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, radius, 0.75 * Math.PI, endAngle, false);
-                ctx.strokeStyle = color;
-                ctx.lineWidth = 16;
-                ctx.stroke();
+            // background
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0.75 * Math.PI, 2.25 * Math.PI);
+            ctx.lineWidth = 16;
+            ctx.strokeStyle = '#ccc';
+            ctx.stroke();
 
-                // Update the value dynamically
-                valueDisplay.innerText = value.toFixed(1) + " " + unit;
-            }
+            // gauge
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0.75 * Math.PI, endAngle, false);
+            ctx.strokeStyle = param.color;
+            ctx.lineWidth = 16;
+            ctx.stroke();
 
-            // Smooth animation logic
-            function animateGauge() {
-                if (Math.abs(currentValue - targetValue) < 0.1) {
-                    targetValue = Math.random() * (maxValue - minValue) + minValue;
-                }
-                currentValue += (targetValue - currentValue) * 0.05;
-                drawGauge(currentValue);
-                requestAnimationFrame(animateGauge);
-            }
-
-            // Start the animation
-            animateGauge();
+            valueDisplay.innerText = value.toFixed(1) + " " + param.unit;
         }
 
-        // Create individual gauges with smooth animation
-        createGauge('phGauge', 'phValue', 6, 7.5, 'pH', '#00ff00');
-        createGauge('tempGauge', 'tempValue', 25, 35, '°C', '#ff5733');
-        createGauge('turbidityGauge', 'turbidityValue', 50, 100, 'NTU', '#f4d03f');
-        createGauge('flowGauge', 'flowValue', 8, 10, 'L/min', '#3498db');
-        createGauge('waterLevelGauge', 'waterLevelValue', 50, 100, '%', '#1e90ff');
-    </script>
+        function animateGauge(targetValue) {
+            function step() {
+                currentValue += (targetValue - currentValue) * 0.05;
+                drawGauge(currentValue);
+                if (Math.abs(currentValue - targetValue) > 0.1) {
+                    requestAnimationFrame(step);
+                } else {
+                    currentValue = targetValue;
+                }
+            }
+            step();
+        }
+
+        return { update: animateGauge };
+    }
+
+    const gauges = {};
+    for (const key in fields) {
+        gauges[key] = createLiveGauge(fields[key]);
+    }
+
+    async function fetchData() {
+        const url = `https://api.thingspeak.com/channels/${channelID}/feeds/last.json?api_key=${apiKey}`;
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+
+            gauges.ph.update(parseFloat(data.field1));
+            gauges.temperature.update(parseFloat(data.field2));
+            gauges.turbidity.update(parseFloat(data.field3));
+            gauges.flow.update(parseFloat(data.field4));
+            gauges.level.update(parseFloat(data.field5));
+        } catch (error) {
+            console.error("ThingSpeak data fetch error:", error);
+        }
+    }
+
+    // Initial fetch
+    fetchData();
+    // Update every 20 seconds
+    setInterval(fetchData, 20000);
+</script>
+
+    
 </body>
 
 </html>
