@@ -223,124 +223,102 @@
         <p>WALKER82417</p>
     </footer>
 
-    <!-- JavaScript to Handle Data Storage -->
-    <script>
-        function downloadCSV() {
-    if (data.length === 0) {
-        alert("No data available to download.");
-        return;
+   <script>
+    const apiKey = 'YOUR_READ_API_KEY'; // Replace with your ThingSpeak Read API Key
+    const channelId = 'YOUR_CHANNEL_ID'; // Replace with your ThingSpeak Channel ID
+
+    let data = [];
+
+    async function fetchData() {
+        try {
+            const response = await fetch(`https://api.thingspeak.com/channels/${channelId}/feeds.json?api_key=${apiKey}&results=100`);
+            const json = await response.json();
+
+            data = json.feeds.map(feed => ({
+                time: new Date(feed.created_at).toLocaleString(),
+                ph: parseFloat(feed.field1),
+                temp: parseFloat(feed.field2),
+                turbidity: parseFloat(feed.field3),
+                flow: parseFloat(feed.field4),
+                waterLevel: parseFloat(feed.field5)
+            })).filter(entry => !isNaN(entry.ph) && !isNaN(entry.temp)); // Filter out any invalid entries
+
+            populateTable();
+        } catch (error) {
+            console.error("Failed to fetch data:", error);
+        }
     }
 
-    let csv = "Timestamp,pH Level,Temperature,Turbidity,Water Flow Rate,Water Level (%)\n";
-    data.forEach(entry => {
-        csv += `${entry.time},${entry.ph.toFixed(2)},${entry.temp.toFixed(1)},${entry.turbidity.toFixed(1)},${entry.flow.toFixed(1)},${entry.waterLevel.toFixed(1)}\n`;
-    });
+    function populateTable() {
+        const tableBody = document.getElementById('table-body');
+        tableBody.innerHTML = '';
 
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "aquaculture_data.csv";
-    a.click();
-    URL.revokeObjectURL(url);
-}
+        data.forEach(entry => {
+            const row = `
+                <tr>
+                    <td>${entry.time}</td>
+                    <td>${entry.ph.toFixed(2)}</td>
+                    <td>${entry.temp.toFixed(1)}°C</td>
+                    <td>${entry.turbidity.toFixed(1)} NTU</td>
+                    <td>${entry.flow.toFixed(1)} L/min</td>
+                    <td>${entry.waterLevel.toFixed(1)}%</td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+    }
 
-        let data = [];
+    function filterData() {
+        const searchValue = document.getElementById('search').value.toLowerCase();
+        const filteredData = data.filter(entry =>
+            Object.values(entry).some(val => val.toString().toLowerCase().includes(searchValue))
+        );
 
-        // Load Data from localStorage
-        function loadStoredData() {
-            const storedData = JSON.parse(localStorage.getItem('parameterData'));
-            if (storedData && storedData.data) {
-                data = storedData.data;
-                console.log('Data loaded from localStorage.');
-            } else {
-                console.log('No valid data found. Using sample data.');
-                populateSampleData();
-            }
-            populateTable();
+        const tableBody = document.getElementById('table-body');
+        tableBody.innerHTML = '';
+
+        filteredData.forEach(entry => {
+            const row = `
+                <tr>
+                    <td>${entry.time}</td>
+                    <td>${entry.ph.toFixed(2)}</td>
+                    <td>${entry.temp.toFixed(1)}°C</td>
+                    <td>${entry.turbidity.toFixed(1)} NTU</td>
+                    <td>${entry.flow.toFixed(1)} L/min</td>
+                    <td>${entry.waterLevel.toFixed(1)}%</td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+    }
+
+    function downloadCSV() {
+        if (data.length === 0) {
+            alert("No data available to download.");
+            return;
         }
 
-        // Store Data in localStorage
-        function storeData() {
-            localStorage.setItem('parameterData', JSON.stringify({ data }));
-        }
+        let csv = "Timestamp,pH Level,Temperature,Turbidity,Water Flow Rate,Water Level (%)\n";
+        data.forEach(entry => {
+            csv += `${entry.time},${entry.ph.toFixed(2)},${entry.temp.toFixed(1)},${entry.turbidity.toFixed(1)},${entry.flow.toFixed(1)},${entry.waterLevel.toFixed(1)}\n`;
+        });
 
-        // Populate Sample Data
-        function populateSampleData() {
-            data = [
-                { time: new Date().toLocaleString(), ph: 7.2, temp: 28.1, turbidity: 3.5, flow: 3.2, waterLevel: 75 },
-                { time: new Date().toLocaleString(), ph: 6.9, temp: 27.5, turbidity: 3.2, flow: 3.1, waterLevel: 68 }
-            ];
-            storeData();
-        }
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "aquaculture_data.csv";
+        a.click();
+        URL.revokeObjectURL(url);
+    }
 
-        // Populate Data in Table
-        function populateTable() {
-            const tableBody = document.getElementById('table-body');
-            tableBody.innerHTML = '';
-            
-            data.forEach(entry => {
-                const row = `
-                    <tr>
-                        <td>${entry.time}</td>
-                        <td>${entry.ph.toFixed(2)}</td>
-                        <td>${entry.temp.toFixed(1)}°C</td>
-                        <td>${entry.turbidity.toFixed(1)} NTU</td>
-                        <td>${entry.flow.toFixed(1)} L/min</td>
-                        <td>${entry.waterLevel.toFixed(1)}%</td>
-                    </tr>
-                `;
-                tableBody.innerHTML += row;
-            });
-        }
+    // Initial fetch
+    fetchData();
 
-        // Filter Table Data Based on User Input
-        function filterData() {
-            const searchValue = document.getElementById('search').value.toLowerCase();
-            const filteredData = data.filter(entry =>
-                Object.values(entry).some(val => val.toString().toLowerCase().includes(searchValue))
-            );
-
-            const tableBody = document.getElementById('table-body');
-            tableBody.innerHTML = '';
-            
-            filteredData.forEach(entry => {
-                const row = `
-                    <tr>
-                        <td>${entry.time}</td>
-                        <td>${entry.ph.toFixed(2)}</td>
-                        <td>${entry.temp.toFixed(1)}°C</td>
-                        <td>${entry.turbidity.toFixed(1)} NTU</td>
-                        <td>${entry.flow.toFixed(1)} L/min</td>
-                        <td>${entry.waterLevel.toFixed(1)}%</td>
-                    </tr>
-                `;
-                tableBody.innerHTML += row;
-            });
-        }
-
-        // Auto-Update Table Data Every 5 Seconds
-        setInterval(() => {
-            const randomEntry = {
-                time: new Date().toLocaleString(),
-                ph: (6.8 + Math.random() * 0.5),
-                temp: (27 + Math.random() * 3),
-                turbidity: (3 + Math.random()),
-                flow: (3 + Math.random()),
-                waterLevel: (50 + Math.random() * 50)
-            };
-            data.unshift(randomEntry);
-            if (data.length > 10) {
-                data.pop();
-            }
-            populateTable();
-            storeData();
-        }, 5000);
-
-        // Load stored data and populate table initially
-        loadStoredData();
-    </script>
-    
+    // Optional: Refresh every 60 seconds
+    setInterval(fetchData, 60000);
+</script>
+ 
 </body>
 
 </html>
